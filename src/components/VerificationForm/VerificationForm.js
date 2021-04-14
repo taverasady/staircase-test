@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useRef } from 'react';
 import InputMask from 'react-input-mask';
 import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
@@ -6,7 +6,6 @@ import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import Paper from '@material-ui/core/Paper';
 import DateFnsUtils from '@date-io/date-fns';
-import { FormControl } from '@material-ui/core';
 import {
   MuiPickersUtilsProvider,
   KeyboardDatePicker,
@@ -15,81 +14,110 @@ import { useStyles } from './styles.js';
 
 function VerificationForm() {
   const classes = useStyles();
+  const formRef = useRef();
 
-  // const [firstName, setFirstName] = React.useState({value: "", isValid: false});
-  const [firstName, setFirstName] = React.useState("");
-  const [lastName, setLastName] = React.useState("");
-  const [email, setEmail] = React.useState("");
-  const [contact, setConctact] = React.useState("");
-  const [address, setAddress] = React.useState("");
-  const [additionalAddress, setAditionalAddress] = React.useState("");
-  const [city, setCity] = React.useState("");
-  const [state, setState] = React.useState("");
-  const [zip, setZip] = React.useState("");
-  const [country, setCountry] = React.useState("");
-  const [taxPayerIdentifier, setTaxPayerIdentifier] = React.useState("");
-  const [selectedDate, setSelectedDate] = React.useState(new Date());
 
-  const handleFirstNameChange = (e) => {
-    setFirstName(e.target.value);
+
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
+  const [contact, setConctact] = useState("");
+  const [address, setAddress] = useState("");
+  const [additionalAddress, setAditionalAddress] = useState("");
+  const [city, setCity] = useState("");
+  const [state, setState] = useState("");
+  const [zip, setZip] = useState("");
+  const [country, setCountry] = useState("");
+  const [taxPayerIdentifier, setTaxPayerIdentifier] = useState("");
+  const [dateOfBirth, setDateOfBirth] = useState(new Date());
+
+  const createTransaction = () => {
+    return fetch(`${process.env.REACT_APP_API_URL}/borrower/employment/transactions`, {
+      method: 'post',
+      headers: new Headers({
+        'x-api-key': process.env.REACT_APP_API_KEY,
+        'Content-Type': 'application/x-www-form-urlencoded'
+      }),
+    });
   };
 
-  // const handleFirstNameChange = (e) => {
-  //   setFirstName({ value: e.target.value, isValid: e.target.value.length === 0 ? true : false });
-  // };
+  const createCollection = (transactionId, formInfo) => {
+    return fetch(`${process.env.REACT_APP_API_URL}/borrower/employment/transactions/${transactionId}/collections`, {
+      method: 'post',
+      headers: new Headers({
+        'x-api-key': process.env.REACT_APP_API_KEY,
+        'Content-Type': 'application/json'
+      }),
+      body: JSON.stringify(formInfo)
+    });
+  }
 
-  const handleLastNameChange = (e) => {
-    setLastName(e.target.value);
-  };
-
-  const handleEmailChange = (e) => {
-    setEmail(e.target.value);
-  };
-
-  const handleContactChange = (e) => {
-    setConctact(e.target.value);
-  };
-
-  const handleAddressChange = (e) => {
-    setAddress(e.target.value);
-  };
-
-  const handleAditionalAddressChange = (e) => {
-    setAditionalAddress(e.target.value);
-  };
-
-  const handleCityChange = (e) => {
-    setCity(e.target.value);
-  };
-
-  const handleStateChange = (e) => {
-    setState(e.target.value);
-  };
-
-  const handleZipChange = (e) => {
-    setZip(e.target.value);
-  };
-
-  const handleTaxPayerIdentifierChange = (e) => {
-    setTaxPayerIdentifier(e.target.value);
-  };
-
-  const handleCountryChange = (e) => {
-    setCountry(e.target.value);
-  };
-
-  const handleDateChange = (date) => {
-    setSelectedDate(date);
-  };
+  const initEmploymentVerification = async () => {
+    const transactionData = await createTransaction();
+    const transactionResponse = await transactionData.json();
+    const formInfo = await mapFormInfo();
+    const collectionData = await createCollection(transactionResponse.transaction_id, formInfo);
+    const collectionResponse = await collectionData.json();
+  }
 
   const submitVerification = () => {
-    if (firstName.length === 0 || lastName.length === 0 || email.length === 0 || contact.length === 0 || address.length === 0 || city.length === 0
-      || state.length === 0 || zip.length === 0 || country.length === 0 || taxPayerIdentifier.length === 0) {
-      console.log("please fill all inputs")
-    } else {
-
+    if (formRef.current.reportValidity()) {
+      initEmploymentVerification();
     }
   };
+
+  const mapFormInfo = async () => {
+    const formInfo = {
+      "deal_sets": [
+        {
+          "parties": [
+            {
+              "individual": {
+                "contact_points": [
+                  {
+                    "contact_point_telephone": contact,
+                    "email": email
+                  }
+                ],
+                "first_name": firstName,
+                "last_name": lastName,
+                "date_of_birth": `${dateOfBirth.getDate()}/${parseInt(dateOfBirth.getMonth() + 1)}/${dateOfBirth.getFullYear()}`
+              },
+              "taxpayer_identifiers": [
+                {
+                  "value": taxPayerIdentifier
+                }
+              ],
+              "roles": [
+                {
+                  "borrower": {
+                    "residences": [
+                      {
+                        "address": {
+                          "line_text": address,
+                          "additional_line_text": additionalAddress,
+                          "city": city,
+                          "state": state,
+                          "postal_code": zip,
+                          "country": country
+                        }
+                      }
+                    ],
+                    "employers": [
+                      {
+                        "legal_entity_name": "default"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+    return formInfo;
+  }
 
   return (
     <div className={classes.center}>
@@ -97,7 +125,7 @@ function VerificationForm() {
         <Typography variant="h6" gutterBottom>
           Verification Form
       </Typography>
-        <FormControl>
+        <form ref={formRef}>
           <Grid container spacing={3}>
             <Grid item xs={12} sm={6}>
               <TextField
@@ -107,9 +135,8 @@ function VerificationForm() {
                 label="First name"
                 fullWidth
                 autoComplete="first-name"
-                error={firstName.isValid}
                 value={firstName.value}
-                onChange={handleFirstNameChange}
+                onChange={(e) => setFirstName(e.target.value)}
               />
             </Grid>
             <Grid item xs={12} sm={6}>
@@ -121,7 +148,7 @@ function VerificationForm() {
                 fullWidth
                 autoComplete="last-name"
                 value={lastName}
-                onChange={handleLastNameChange}
+                onChange={(e) => setLastName(e.target.value)}
               />
             </Grid>
             <Grid item xs={6}>
@@ -133,7 +160,7 @@ function VerificationForm() {
                 fullWidth
                 autoComplete="email"
                 value={email}
-                onChange={handleEmailChange}
+                onChange={(e) => setEmail(e.target.value)}
               />
             </Grid>
             <Grid item xs={6}>
@@ -145,7 +172,7 @@ function VerificationForm() {
                 fullWidth
                 autoComplete="contact"
                 value={contact}
-                onChange={handleContactChange}
+                onChange={(e) => setConctact(e.target.value)}
               />
             </Grid>
             <Grid item xs={12}>
@@ -156,7 +183,18 @@ function VerificationForm() {
                 fullWidth
                 autoComplete="address"
                 value={address}
-                onChange={handleAddressChange}
+                onChange={(e) => setAddress(e.target.value)}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                id="additionalLine"
+                name="additionalLine"
+                label="Aditional Address"
+                fullWidth
+                autoComplete="addres2"
+                value={additionalAddress}
+                onChange={(e) => setAditionalAddress(e.target.value)}
               />
             </Grid>
             <Grid item xs={12} sm={6}>
@@ -165,7 +203,7 @@ function VerificationForm() {
                 value={taxPayerIdentifier}
                 disabled={false}
                 maskChar=" "
-                onChange={handleTaxPayerIdentifierChange}
+                onChange={(e) => setTaxPayerIdentifier(e.target.value)}
               >
                 {() => <TextField
                   id="taxPayerIdentifier"
@@ -179,17 +217,6 @@ function VerificationForm() {
             </Grid>
             <Grid item xs={12} sm={6}>
               <TextField
-                id="additionalLine"
-                name="additionalLine"
-                label="Aditional Address"
-                fullWidth
-                autoComplete="addres2"
-                value={additionalAddress}
-                onChange={handleAditionalAddressChange}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
                 required
                 id="city"
                 name="city"
@@ -197,11 +224,11 @@ function VerificationForm() {
                 fullWidth
                 autoComplete="shipping address-level2"
                 value={city}
-                onChange={handleCityChange}
+                onChange={(e) => setCity(e.target.value)}
               />
             </Grid>
             <Grid item xs={12} sm={6}>
-              <TextField id="state" name="state" label="State/Province/Region" fullWidth value={state} onChange={handleStateChange} />
+              <TextField id="state" name="state" label="State/Province/Region" fullWidth value={state} onChange={(e) => setState(e.target.value)} />
             </Grid>
             <Grid item xs={12} sm={6}>
               <TextField
@@ -212,7 +239,7 @@ function VerificationForm() {
                 fullWidth
                 autoComplete="shipping postal-code"
                 value={zip}
-                onChange={handleZipChange}
+                onChange={(e) => setZip(e.target.value)}
               />
             </Grid>
             <Grid item xs={12} sm={6}>
@@ -224,7 +251,7 @@ function VerificationForm() {
                 fullWidth
                 autoComplete="country"
                 value={country}
-                onChange={handleCountryChange}
+                onChange={(e) => setCountry(e.target.value)}
               />
             </Grid>
             <Grid item xs={6}>
@@ -236,8 +263,8 @@ function VerificationForm() {
                   margin="normal"
                   id="date-picker-inline"
                   label="Date of birth *"
-                  value={selectedDate}
-                  onChange={handleDateChange}
+                  value={dateOfBirth}
+                  onChange={(e) => setDateOfBirth(e)}
                   KeyboardButtonProps={{
                     'aria-label': 'change date',
                   }}
@@ -250,7 +277,7 @@ function VerificationForm() {
               </div>
             </Grid>
           </Grid>
-        </FormControl>
+        </form>
       </Paper>
     </div>
   );
