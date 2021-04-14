@@ -6,6 +6,7 @@ import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import Paper from '@material-ui/core/Paper';
 import DateFnsUtils from '@date-io/date-fns';
+import EmployerTable from '../EmployerTable/EmployerTable';
 import {
   MuiPickersUtilsProvider,
   KeyboardDatePicker,
@@ -18,17 +19,17 @@ function VerificationForm() {
 
 
 
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [email, setEmail] = useState("");
-  const [contact, setConctact] = useState("");
-  const [address, setAddress] = useState("");
-  const [additionalAddress, setAditionalAddress] = useState("");
-  const [city, setCity] = useState("");
-  const [state, setState] = useState("");
-  const [zip, setZip] = useState("");
-  const [country, setCountry] = useState("");
-  const [taxPayerIdentifier, setTaxPayerIdentifier] = useState("");
+  const [firstName, setFirstName] = useState("test");
+  const [lastName, setLastName] = useState("test");
+  const [email, setEmail] = useState("test");
+  const [contact, setConctact] = useState("test");
+  const [address, setAddress] = useState("test");
+  const [additionalAddress, setAditionalAddress] = useState("test");
+  const [city, setCity] = useState("test");
+  const [state, setState] = useState("test");
+  const [zip, setZip] = useState("test");
+  const [country, setCountry] = useState("test");
+  const [taxPayerIdentifier, setTaxPayerIdentifier] = useState("317-21-0001");
   const [dateOfBirth, setDateOfBirth] = useState(new Date());
 
   const createTransaction = () => {
@@ -38,7 +39,9 @@ function VerificationForm() {
         'x-api-key': process.env.REACT_APP_API_KEY,
         'Content-Type': 'application/x-www-form-urlencoded'
       }),
-    });
+    }).catch((error) => {
+      console.log('request failed', error)
+    })
   };
 
   const createCollection = (transactionId, formInfo) => {
@@ -49,7 +52,31 @@ function VerificationForm() {
         'Content-Type': 'application/json'
       }),
       body: JSON.stringify(formInfo)
-    });
+    }).catch((error) => {
+      console.log('request failed', error)
+    })
+  }
+
+  const verifyEmployment = (transactionId, collectionId) => {
+    const options = {
+      "transaction_id": transactionId,
+      "collection_id": collectionId,
+      "partner_name": "default",
+      "options": {
+        "manual_verification": false,
+        "exclude_borrower": false
+      }
+    }
+    return fetch(`${process.env.REACT_APP_API_URL}/borrower/employment/`, {
+      method: 'post',
+      headers: new Headers({
+        'x-api-key': process.env.REACT_APP_API_KEY,
+        'Content-Type': 'application/json'
+      }),
+      body: JSON.stringify(options)
+    }).catch((error) => {
+      console.log('request failed', error)
+    })
   }
 
   const initEmploymentVerification = async () => {
@@ -58,6 +85,8 @@ function VerificationForm() {
     const formInfo = await mapFormInfo();
     const collectionData = await createCollection(transactionResponse.transaction_id, formInfo);
     const collectionResponse = await collectionData.json();
+    const verifyEmploymentData = await verifyEmployment(collectionResponse.transaction_id, collectionResponse.collection_id);
+    console.log(verifyEmploymentData);
   }
 
   const submitVerification = () => {
@@ -105,7 +134,7 @@ function VerificationForm() {
                     ],
                     "employers": [
                       {
-                        "legal_entity_name": "default"
+                        "legal_entity_name": "Truework Inc"
                       }
                     ]
                   }
@@ -120,11 +149,12 @@ function VerificationForm() {
   }
 
   return (
+    <React.Fragment>
     <div className={classes.center}>
       <Paper elevation={3} className={classes.paper}>
         <Typography variant="h6" gutterBottom>
           Verification Form
-      </Typography>
+              </Typography>
         <form ref={formRef}>
           <Grid container spacing={3}>
             <Grid item xs={12} sm={6}>
@@ -135,7 +165,7 @@ function VerificationForm() {
                 label="First name"
                 fullWidth
                 autoComplete="first-name"
-                value={firstName.value}
+                value={firstName}
                 onChange={(e) => setFirstName(e.target.value)}
               />
             </Grid>
@@ -171,6 +201,10 @@ function VerificationForm() {
                 label="Contact"
                 fullWidth
                 autoComplete="contact"
+                type="number"
+                InputLabelProps={{
+                  shrink: true,
+                }}
                 value={contact}
                 onChange={(e) => setConctact(e.target.value)}
               />
@@ -237,7 +271,8 @@ function VerificationForm() {
                 name="zip"
                 label="Zip / Postal code"
                 fullWidth
-                autoComplete="shipping postal-code"
+                autoComplete="postal-code"
+                inputProps={{ maxLength: 10 }}
                 value={zip}
                 onChange={(e) => setZip(e.target.value)}
               />
@@ -257,8 +292,7 @@ function VerificationForm() {
             <Grid item xs={6}>
               <MuiPickersUtilsProvider utils={DateFnsUtils}>
                 <KeyboardDatePicker
-                  disableToolbar
-                  variant="inline"
+                  margin="normal"
                   format="MM/dd/yyyy"
                   margin="normal"
                   id="date-picker-inline"
@@ -280,6 +314,17 @@ function VerificationForm() {
         </form>
       </Paper>
     </div>
+    <div className={classes.tableContainer}>
+      <Grid container spacing={3}>
+        <Grid item xs={12} sm={6}>
+          <EmployerTable></EmployerTable>
+        </Grid>
+        <Grid item xs={6} sm={6}>
+        <EmployerTable></EmployerTable>
+        </Grid>
+      </Grid>
+    </div>
+    </React.Fragment>
   );
 }
 
