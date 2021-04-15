@@ -7,9 +7,9 @@ import logo from "../../assets/images/logo.png";
 function Header() {
   const classes = useStyles();
     return (
-      <AppBar className={classes.appBarColor} position="static">
+      <AppBar className={classes.Header} position="static">
       <Toolbar>
-        <img src={logo} className={classes.logoSize} alt="staircase"/>
+        <img src={logo} className={`${classes.Header}__image`} alt="staircase"/>
       </Toolbar>
     </AppBar>
     );

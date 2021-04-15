@@ -7,65 +7,15 @@ import Button from '@material-ui/core/Button';
 import Paper from '@material-ui/core/Paper';
 import DateFnsUtils from '@date-io/date-fns';
 import EmployerTable from '../EmployerTable/EmployerTable';
+import IncomeTable from "../IncomeTable/IncomeTable"
 import {
   MuiPickersUtilsProvider,
   KeyboardDatePicker,
 } from '@material-ui/pickers';
 import { useStyles } from './styles.js';
+import { createTransaction, createIncomeCollection, verifyIncome, retrieveIncomeCollection } from "../../requests/IncomeRequests.js";
+import { mapFormInfo } from "../../requests/Utils/Utils.js";
 
-const mapFormInfo = async ({ contact, email, firstName, lastName, dateOfBirth, taxPayerIdentifier, address, additionalAddress, city, state, zip, country }) => {
-
-  const formInfo = {
-    "deal_sets": [
-      {
-        "parties": [
-          {
-            "individual": {
-              "contact_points": [
-                {
-                  "contact_point_telephone": contact,
-                  "email": email
-                }
-              ],
-              "first_name": firstName,
-              "last_name": lastName,
-              "date_of_birth": `${dateOfBirth.getDate()}/${parseInt(dateOfBirth.getMonth() + 1)}/${dateOfBirth.getFullYear()}`
-            },
-            "taxpayer_identifiers": [
-              {
-                "value": taxPayerIdentifier
-              }
-            ],
-            "roles": [
-              {
-                "borrower": {
-                  "residences": [
-                    {
-                      "address": {
-                        "line_text": address,
-                        "additional_line_text": additionalAddress,
-                        "city": city,
-                        "state": state,
-                        "postal_code": zip,
-                        "country": country
-                      }
-                    }
-                  ],
-                  "employers": [
-                    {
-                      "legal_entity_name": "Truework Inc"
-                    }
-                  ]
-                }
-              }
-            ]
-          }
-        ]
-      }
-    ]
-  }
-  return formInfo;
-}
 const pause = async (milliseconds = 1000) => {
   return new Promise((resolve, reject) => {
     setTimeout(() => {
@@ -73,63 +23,10 @@ const pause = async (milliseconds = 1000) => {
     }, milliseconds);
   });
 }
-const createTransaction = async () => {
-  return fetch(`${process.env.REACT_APP_API_URL}/borrower/employment/transactions`, {
-    method: 'POST',
-    headers: {
-      'x-api-key': process.env.REACT_APP_API_KEY,
-      'Content-Type': 'application/x-www-form-urlencoded'
-    },
-  })
-};
-
-const createCollection = async (transactionId, formInfo) => {
-  return fetch(`${process.env.REACT_APP_API_URL}/borrower/employment/transactions/${transactionId}/collections`, {
-    method: 'POST',
-    headers: {
-      'x-api-key': process.env.REACT_APP_API_KEY,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(formInfo)
-  })
-}
-
-const verifyEmployment = async (transactionId, collectionId) => {
-  const options = {
-    "transaction_id": transactionId,
-    "collection_id": collectionId,
-    "partner_name": "default",
-    "options": {
-      "manual_verification": false,
-      "exclude_borrower": false
-    }
-  }
-  return fetch(`${process.env.REACT_APP_API_URL}/borrower/employment/`, {
-    method: 'POST',
-    headers: {
-      'x-api-key': process.env.REACT_APP_API_KEY,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(options)
-  })
-}
-
-const retrieveCollection = async (transactionId, collectionId) => {
-  const url = `${process.env.REACT_APP_API_URL}/borrower/employment/transactions/${transactionId}/collections/${collectionId}`
-
-  return fetch(url, {
-    method: 'GET',
-    headers: {
-      'x-api-key': process.env.REACT_APP_API_KEY,
-      'Content-Type': 'application/json'
-    },
-  })
-};
 
 function VerificationForm() {
   const classes = useStyles();
   const formRef = useRef();
-
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -142,23 +39,26 @@ function VerificationForm() {
   const [country, setCountry] = useState("");
   const [taxPayerIdentifier, setTaxPayerIdentifier] = useState("317-21-0001");
   const [dateOfBirth, setDateOfBirth] = useState(new Date());
-  const [employeeHistory, setEmployeeHistory] = useState();
+  const [employeeHistory, setEmployeeHistory] = useState(null);
+  const [employeeIncome, setEmployeeIncome] = useState(null);
 
   const submitVerification = async () => {
     if (formRef.current.reportValidity()) {
-      await initEmploymentVerification({ contact, email, firstName, lastName, dateOfBirth, taxPayerIdentifier, address, additionalAddress, city, state, zip, country });
+      await initEmploymentVerification();
     }
   };
 
-  const initEmploymentVerification = async ({ contact, email, firstName, lastName, dateOfBirth, taxPayerIdentifier, address, additionalAddress, city, state, zip, country }) => {
+  const initEmploymentVerification = async () => {
     try {
       const transactionResponse = await createTransaction().then(r => r.json());
       const formInfo = await mapFormInfo({ contact, email, firstName, lastName, dateOfBirth, taxPayerIdentifier, address, additionalAddress, city, state, zip, country });
-      const collectionResponse = await createCollection(transactionResponse.transaction_id, formInfo).then(response => response.json());
-      const retrievedCollection = await verifyEmployment(collectionResponse.transaction_id, collectionResponse.collection_id).then(response => response.json());
-      await pause(19000)
-      const retrievedEmployeeCollection = await retrieveCollection(collectionResponse.transaction_id, retrievedCollection.collection_id).then(response => response.json());
-      setEmployeeHistory(retrievedEmployeeCollection.data.deal_sets[0].parties[0].roles[0].borrower.employers);
+      const collectionResponse = await createIncomeCollection(transactionResponse.transaction_id, formInfo).then(response => response.json());
+      const verifyCollection = await verifyIncome(transactionResponse.transaction_id, collectionResponse.collection_id).then(response => response.json());
+      await pause(15000)
+      const retrievedCollectionResponse = await retrieveIncomeCollection(transactionResponse.transaction_id, verifyCollection.collection_id).then(response => response.json());
+      debugger;
+      setEmployeeHistory(retrievedCollectionResponse.data.deal_sets[0].parties[0].roles[0].borrower.employers);
+      setEmployeeIncome(retrievedCollectionResponse.data.deal_sets[0].parties[0].roles[0].borrower.current_income);
     } catch (err) {
       console.error(err)
     }
@@ -335,6 +235,7 @@ function VerificationForm() {
             <EmployerTable employeeHistory={employeeHistory}></EmployerTable>
           </Grid>
           <Grid item xs={6} sm={6}>
+            <IncomeTable employeeIncome={employeeIncome}/>
           </Grid>
         </Grid>
       </div>
