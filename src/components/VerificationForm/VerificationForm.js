@@ -54,9 +54,8 @@ function VerificationForm() {
       const formInfo = await mapFormInfo({ contact, email, firstName, lastName, dateOfBirth, taxPayerIdentifier, address, additionalAddress, city, state, zip, country });
       const collectionResponse = await createIncomeCollection(transactionResponse.transaction_id, formInfo).then(response => response.json());
       const verifyCollection = await verifyIncome(transactionResponse.transaction_id, collectionResponse.collection_id).then(response => response.json());
-      await pause(15000)
+      await pause(6000)
       const retrievedCollectionResponse = await retrieveIncomeCollection(transactionResponse.transaction_id, verifyCollection.collection_id).then(response => response.json());
-      debugger;
       setEmployeeHistory(retrievedCollectionResponse.data.deal_sets[0].parties[0].roles[0].borrower.employers);
       setEmployeeIncome(retrievedCollectionResponse.data.deal_sets[0].parties[0].roles[0].borrower.current_income);
     } catch (err) {
@@ -66,8 +65,8 @@ function VerificationForm() {
 
   return (
     <React.Fragment>
-      <div className={classes.center}>
-        <Paper elevation={3} className={classes.paper}>
+      <div className={classes.VerificationForm}>
+        <Paper elevation={3} className={`${classes.VerificationForm}__paper`}>
           <Typography variant="h6" gutterBottom>
             Verification Form
               </Typography>
@@ -221,20 +220,22 @@ function VerificationForm() {
                 </MuiPickersUtilsProvider>
               </Grid>
               <Grid item xs={12}>
-                <div className={classes.buttons}>
-                  <Button variant="contained" onClick={submitVerification} className={classes.button}>Submit</Button>
+                <div className={`${classes.VerificationForm}__buttons`}>
+                  <Button variant="contained" onClick={submitVerification} className={`${classes.VerificationForm}__button`}>Submit</Button>
                 </div>
               </Grid>
             </Grid>
           </form>
         </Paper>
       </div>
-      <div className={classes.tableContainer}>
+      <div className={`${classes.VerificationForm}__table-container`}>
         <Grid container spacing={3}>
           <Grid item xs={12} sm={6}>
+          <Typography variant="h5" align="center" className={`${classes.VerificationForm}__title-text`}>Employment Verification</Typography>
             <EmployerTable employeeHistory={employeeHistory}></EmployerTable>
           </Grid>
           <Grid item xs={6} sm={6}>
+          <Typography variant="h5" align="center" className={`${classes.VerificationForm}__title-text`}>Income Verification</Typography>
             <IncomeTable employeeIncome={employeeIncome}/>
           </Grid>
         </Grid>

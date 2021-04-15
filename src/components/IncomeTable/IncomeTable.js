@@ -7,6 +7,7 @@ import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
 import TableCell from '@material-ui/core/TableCell';
+import { Typography } from '@material-ui/core';
 import { useStyles } from './styles.js';
 
 const StyledTableCell = withStyles((theme) => ({
@@ -32,37 +33,34 @@ export default function IncomeTable({ employeeIncome }) {
 
     return (
         <React.Fragment>
-            {employeeIncome ? <TableContainer component={Paper}>
-                <Table className={classes.IncomeTable} aria-label="customized table">
-                    <TableHead>
-                        <tr>
-                            <StyledTableCell align="left">Year</StyledTableCell>
-                            <StyledTableCell align="left">Total</StyledTableCell>
-                            <StyledTableCell align="left">Type</StyledTableCell>
-                        </tr>
-                    </TableHead>
-                    <TableBody>
-                        {employeeIncome.map((item) => (
-                            <StyledTableRow key={item.start_date}>
-                                <StyledTableCell align="left">{item.other_period_description}</StyledTableCell>
-                                {item.incomes.map((row, i) => (
-                                    <React.Fragment key={i}>
-                                        <StyledTableCell align="left">{row.other_period_total}</StyledTableCell>
-                                        <StyledTableCell align="left">{row.type}</StyledTableCell>
-                                    </React.Fragment>
-                                ))}
-                            </StyledTableRow>
-                        ))}
-                        {/* {employeeIncome.map((row) => (
-                            <StyledTableRow key={row.start_date}>
-                                <StyledTableCell align="left">{row.other_period_description}</StyledTableCell>
-                                <StyledTableCell align="left">{row.incomes ? row.incomes.other_period_total : ""}</StyledTableCell>
-                                <StyledTableCell align="left">{row.incomes ? row.incomes.type : ""}</StyledTableCell>
-                            </StyledTableRow>
-                        ))} */}
-                    </TableBody>
-                </Table>
-            </TableContainer> : ""}
+            {employeeIncome ?
+                <Paper elevation={3} className={`${classes.IncomeTable}__paper`}>
+                    {employeeIncome.map((item, index) => (
+                        <React.Fragment key={index}>
+                            <Typography variant="h5" align="center" className={`${classes.IncomeTable}__title-text`}>{item.other_period_description}</Typography>
+                            <TableContainer component={Paper}>
+                                <Table className={classes.IncomeTable} aria-label="customized table">
+                                    <TableHead>
+                                        <tr>
+                                            <StyledTableCell align="left">Total</StyledTableCell>
+                                            <StyledTableCell align="left">Type</StyledTableCell>
+                                        </tr>
+                                    </TableHead>
+                                    <TableBody>
+                                        {item.incomes.map((row, i) => (
+                                            <StyledTableRow key={row.start_date}>
+                                                <StyledTableCell align="left">{row.other_period_total}</StyledTableCell>
+                                                <StyledTableCell align="left">{row.type ? row.type : "N/A"}</StyledTableCell>
+                                            </StyledTableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            </TableContainer>
+                        </React.Fragment>
+                    ))}
+                </Paper>
+                : ""}
+
         </React.Fragment>
     );
 }
