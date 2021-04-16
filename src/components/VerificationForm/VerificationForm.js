@@ -15,6 +15,8 @@ import {
 import { useStyles } from './styles.js';
 import { createTransaction, createIncomeCollection, verifyIncome, retrieveIncomeCollection } from "../../requests/IncomeRequests.js";
 import { mapFormInfo } from "../../requests/Utils/Utils.js";
+import Backdrop from '@material-ui/core/Backdrop';
+import CircularProgress from '@material-ui/core/CircularProgress';
 
 const pause = async (milliseconds = 1000) => {
   return new Promise((resolve, reject) => {
@@ -37,13 +39,15 @@ function VerificationForm() {
   const [state, setState] = useState("");
   const [zip, setZip] = useState("");
   const [country, setCountry] = useState("");
-  const [taxPayerIdentifier, setTaxPayerIdentifier] = useState("317-21-0001");
+  const [taxPayerIdentifier, setTaxPayerIdentifier] = useState("");
   const [dateOfBirth, setDateOfBirth] = useState(new Date());
   const [employeeHistory, setEmployeeHistory] = useState(null);
   const [employeeIncome, setEmployeeIncome] = useState(null);
+  const [loading, setLoading] = React.useState(false);
 
   const submitVerification = async () => {
     if (formRef.current.reportValidity()) {
+      setLoading(true);
       await initEmploymentVerification();
     }
   };
@@ -58,6 +62,7 @@ function VerificationForm() {
       const retrievedCollectionResponse = await retrieveIncomeCollection(transactionResponse.transaction_id, verifyCollection.collection_id).then(response => response.json());
       setEmployeeHistory(retrievedCollectionResponse.data.deal_sets[0].parties[0].roles[0].borrower.employers);
       setEmployeeIncome(retrievedCollectionResponse.data.deal_sets[0].parties[0].roles[0].borrower.current_income);
+      setLoading(false);
     } catch (err) {
       console.error(err)
     }
@@ -65,6 +70,9 @@ function VerificationForm() {
 
   return (
     <React.Fragment>
+      <Backdrop className={`${classes.VerificationForm}__loading`} open={loading}>
+        <CircularProgress color="inherit" />
+      </Backdrop>
       <div className={classes.VerificationForm}>
         <Paper elevation={3} className={`${classes.VerificationForm}__paper`}>
           <Typography variant="h6" gutterBottom role="heading">
@@ -121,6 +129,8 @@ function VerificationForm() {
                   fullWidth
                   autoComplete="contact"
                   type="number"
+                  onKeyDown={ (evt) => (evt.key === 'e' && evt.preventDefault()) ||
+                  (evt.key === '.' && evt.preventDefault()) || (evt.key === '-' && evt.preventDefault()) }
                   InputLabelProps={{
                     shrink: true,
                   }}
@@ -170,7 +180,6 @@ function VerificationForm() {
                     autoComplete="taxPayerIdentifier"
                   />}
                 </InputMask>
-
               </Grid>
               <Grid item xs={12} sm={6}>
                 <TextField
@@ -243,11 +252,9 @@ function VerificationForm() {
       <div className={`${classes.VerificationForm}__table-container`}>
         <Grid container spacing={3}>
           <Grid item xs={12} sm={6}>
-            <Typography variant="h5" align="center" className={`${classes.VerificationForm}__title-text`}>Employment Verification</Typography>
             <EmployerTable employeeHistory={employeeHistory}></EmployerTable>
           </Grid>
           <Grid item xs={6} sm={6}>
-            <Typography variant="h5" align="center" className={`${classes.VerificationForm}__title-text`}>Income Verification</Typography>
             <IncomeTable employeeIncome={employeeIncome} />
           </Grid>
         </Grid>

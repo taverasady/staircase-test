@@ -34,31 +34,34 @@ export default function IncomeTable({ employeeIncome }) {
     return (
         <React.Fragment>
             {employeeIncome ?
-                <Paper elevation={3} className={`${classes.IncomeTable}__paper`}>
-                    {employeeIncome.map((item, index) => (
-                        <React.Fragment key={index}>
-                            <Typography variant="h5" align="center" className={`${classes.IncomeTable}__title-text`}>{item.other_period_description}</Typography>
-                            <TableContainer component={Paper}>
-                                <Table className={classes.IncomeTable} aria-label="customized table">
-                                    <TableHead>
-                                        <tr>
-                                            <StyledTableCell align="left">Total</StyledTableCell>
-                                            <StyledTableCell align="left">Type</StyledTableCell>
-                                        </tr>
-                                    </TableHead>
-                                    <TableBody>
-                                        {item.incomes.map((row, i) => (
-                                            <StyledTableRow key={row.start_date}>
-                                                <StyledTableCell align="left">{row.other_period_total}</StyledTableCell>
-                                                <StyledTableCell align="left">{row.type ? row.type : "N/A"}</StyledTableCell>
+                <React.Fragment>
+                    <Typography variant="h5" align="center" className={`${classes.IncomeTable}__title-text`}>Income Verification</Typography>
+                    <Paper elevation={3} className={`${classes.IncomeTable}__paper`}>
+                        {employeeIncome.map((item, index) => (
+                            <React.Fragment key={index}>
+                                <Typography variant="h5" align="center" className={`${classes.IncomeTable}__title-text`}>{item.other_period_description}</Typography>
+                                <TableContainer component={Paper}>
+                                    <Table className={classes.IncomeTable} aria-label="customized table">
+                                        <TableHead>
+                                            <StyledTableRow key={index}>
+                                                <StyledTableCell align="left">Total</StyledTableCell>
+                                                <StyledTableCell align="left">Type</StyledTableCell>
                                             </StyledTableRow>
-                                        ))}
-                                    </TableBody>
-                                </Table>
-                            </TableContainer>
-                        </React.Fragment>
-                    ))}
-                </Paper>
+                                        </TableHead>
+                                        <TableBody>
+                                            {item.incomes.map((row, i) => (
+                                                <StyledTableRow key={i}>
+                                                    <StyledTableCell align="left">{row.other_period_total}</StyledTableCell>
+                                                    <StyledTableCell align="left">{row.type ? row.type : "N/A"}</StyledTableCell>
+                                                </StyledTableRow>
+                                            ))}
+                                        </TableBody>
+                                    </Table>
+                                </TableContainer>
+                            </React.Fragment>
+                        ))}
+                    </Paper>
+                </React.Fragment>
                 : ""}
 
         </React.Fragment>

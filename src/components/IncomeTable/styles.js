@@ -9,7 +9,7 @@ const useStyles = makeStyles((theme) => ({
     "&__paper": {
       marginTop: theme.spacing(3),
       marginBottom: theme.spacing(3),
-      padding: theme.spacing(2),
+      padding: theme.spacing(0),
       [theme.breakpoints.up(600 + theme.spacing(3) * 2)]: {
         marginTop: theme.spacing(0),
         marginBottom: theme.spacing(6),

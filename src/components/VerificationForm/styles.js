@@ -26,12 +26,9 @@ const useStyles = makeStyles((theme) => ({
       marginRight: theme.spacing(2),
       [theme.breakpoints.up(600 + theme.spacing(2) * 2)]: {
         width: 1600,
-        marginLeft: '50px',
+        marginLeft: '250px',
         marginRight: 'auto',
       },
-    },
-    "&__title-text": {
-      padding: theme.spacing(2)
     },
     "&__buttons": {
       display: 'flex',
@@ -46,6 +43,10 @@ const useStyles = makeStyles((theme) => ({
         backgroundColor: '#131212',
         color: '#ffff',
       }
+    },
+    "&__loading": {
+      zIndex: theme.zIndex.drawer + 1,
+      color: '#fff',
     },
   },
 }));
