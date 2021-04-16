@@ -67,13 +67,14 @@ function VerificationForm() {
     <React.Fragment>
       <div className={classes.VerificationForm}>
         <Paper elevation={3} className={`${classes.VerificationForm}__paper`}>
-          <Typography variant="h6" gutterBottom>
+          <Typography variant="h6" gutterBottom role="heading">
             Verification Form
               </Typography>
           <form ref={formRef}>
             <Grid container spacing={3}>
               <Grid item xs={12} sm={6}>
                 <TextField
+                  data-testid="first-name"
                   required
                   id="firstName"
                   name="firstName"
@@ -87,6 +88,7 @@ function VerificationForm() {
               <Grid item xs={12} sm={6}>
                 <TextField
                   required
+                  data-testid="last-name"
                   id="lastName"
                   name="lastName"
                   label="Last name"
@@ -99,6 +101,7 @@ function VerificationForm() {
               <Grid item xs={6}>
                 <TextField
                   required
+                  data-testid="email"
                   id="email"
                   name="email"
                   label="Email"
@@ -111,6 +114,7 @@ function VerificationForm() {
               <Grid item xs={6}>
                 <TextField
                   required
+                  data-testid="contact"
                   id="contact"
                   name="contact"
                   label="Contact"
@@ -126,6 +130,8 @@ function VerificationForm() {
               </Grid>
               <Grid item xs={12}>
                 <TextField
+                  required
+                  data-testid="address"
                   id="address"
                   name="address"
                   label="Address *"
@@ -137,6 +143,7 @@ function VerificationForm() {
               </Grid>
               <Grid item xs={12} sm={6}>
                 <TextField
+                  data-testid="additional-address"
                   id="additionalLine"
                   name="additionalLine"
                   label="Aditional Address"
@@ -155,6 +162,7 @@ function VerificationForm() {
                   onChange={(e) => setTaxPayerIdentifier(e.target.value)}
                 >
                   {() => <TextField
+                    data-testid="tax-payer-identifier"
                     id="taxPayerIdentifier"
                     name="taxPayerIdentifier"
                     label="Tax payer identifier * "
@@ -167,6 +175,7 @@ function VerificationForm() {
               <Grid item xs={12} sm={6}>
                 <TextField
                   required
+                  data-testid="city"
                   id="city"
                   name="city"
                   label="City"
@@ -182,6 +191,7 @@ function VerificationForm() {
               <Grid item xs={12} sm={6}>
                 <TextField
                   required
+                  data-testid="zip"
                   id="zip"
                   name="zip"
                   label="Zip / Postal code"
@@ -195,6 +205,7 @@ function VerificationForm() {
               <Grid item xs={12} sm={6}>
                 <TextField
                   required
+                  data-testid="country"
                   id="country"
                   name="country"
                   label="Country"
@@ -207,6 +218,7 @@ function VerificationForm() {
               <Grid item xs={6}>
                 <MuiPickersUtilsProvider utils={DateFnsUtils}>
                   <KeyboardDatePicker
+                    data-testid="date-of-birth"
                     format="MM/dd/yyyy"
                     margin="normal"
                     id="date-picker-inline"
@@ -231,12 +243,12 @@ function VerificationForm() {
       <div className={`${classes.VerificationForm}__table-container`}>
         <Grid container spacing={3}>
           <Grid item xs={12} sm={6}>
-          <Typography variant="h5" align="center" className={`${classes.VerificationForm}__title-text`}>Employment Verification</Typography>
+            <Typography variant="h5" align="center" className={`${classes.VerificationForm}__title-text`}>Employment Verification</Typography>
             <EmployerTable employeeHistory={employeeHistory}></EmployerTable>
           </Grid>
           <Grid item xs={6} sm={6}>
-          <Typography variant="h5" align="center" className={`${classes.VerificationForm}__title-text`}>Income Verification</Typography>
-            <IncomeTable employeeIncome={employeeIncome}/>
+            <Typography variant="h5" align="center" className={`${classes.VerificationForm}__title-text`}>Income Verification</Typography>
+            <IncomeTable employeeIncome={employeeIncome} />
           </Grid>
         </Grid>
       </div>
