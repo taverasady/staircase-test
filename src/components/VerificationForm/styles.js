@@ -24,11 +24,6 @@ const useStyles = makeStyles((theme) => ({
       width: 'auto',
       marginLeft: theme.spacing(2),
       marginRight: theme.spacing(2),
-      [theme.breakpoints.up(600 + theme.spacing(2) * 2)]: {
-        width: 1600,
-        marginLeft: '250px',
-        marginRight: 'auto',
-      },
     },
     "&__buttons": {
       display: 'flex',

@@ -2,20 +2,19 @@ import { makeStyles } from '@material-ui/core/styles';
 
 const useStyles = makeStyles((theme) => ({
   IncomeTable: {
-    minWidth: 700,
     "&__title-text": {
       padding: theme.spacing(2)
     },
-    "&__paper": {
-      marginTop: theme.spacing(3),
-      marginBottom: theme.spacing(3),
-      padding: theme.spacing(0),
-      [theme.breakpoints.up(600 + theme.spacing(3) * 2)]: {
-        marginTop: theme.spacing(0),
-        marginBottom: theme.spacing(6),
-        padding: theme.spacing(3),
-      },
-    }
+    "&__head": {
+      backgroundColor: theme.palette.common.black,
+    },
+    "&__head-text": {
+      color: theme.palette.common.white,
+    },
+    "&__cell-spacing": {
+      paddingBottom: 0,
+      paddingTop: 0
+    },
   },
 }));
 

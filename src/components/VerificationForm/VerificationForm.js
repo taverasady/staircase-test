@@ -58,7 +58,7 @@ function VerificationForm() {
       const formInfo = await mapFormInfo({ contact, email, firstName, lastName, dateOfBirth, taxPayerIdentifier, address, additionalAddress, city, state, zip, country });
       const collectionResponse = await createIncomeCollection(transactionResponse.transaction_id, formInfo).then(response => response.json());
       const verifyCollection = await verifyIncome(transactionResponse.transaction_id, collectionResponse.collection_id).then(response => response.json());
-      await pause(6000)
+      await pause(8000)
       const retrievedCollectionResponse = await retrieveIncomeCollection(transactionResponse.transaction_id, verifyCollection.collection_id).then(response => response.json());
       setEmployeeHistory(retrievedCollectionResponse.data.deal_sets[0].parties[0].roles[0].borrower.employers);
       setEmployeeIncome(retrievedCollectionResponse.data.deal_sets[0].parties[0].roles[0].borrower.current_income);
@@ -144,7 +144,7 @@ function VerificationForm() {
                   data-testid="address"
                   id="address"
                   name="address"
-                  label="Address *"
+                  label="Address"
                   fullWidth
                   autoComplete="address"
                   value={address}
@@ -195,7 +195,7 @@ function VerificationForm() {
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
-                <TextField id="state" name="state" label="State/Province/Region" fullWidth value={state} onChange={(e) => setState(e.target.value)} />
+                <TextField id="state" required name="state" label="State/Province/Region" fullWidth value={state} onChange={(e) => setState(e.target.value)} />
               </Grid>
               <Grid item xs={12} sm={6}>
                 <TextField

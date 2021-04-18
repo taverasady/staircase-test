@@ -23,7 +23,7 @@ const StyledTableCell = withStyles((theme) => ({
 const StyledTableRow = withStyles((theme) => ({
     root: {
         '&:nth-of-type(odd)': {
-            backgroundColor: theme.palette.action.hover,
+            backgroundColor: theme.palette.common.white,
         },
     },
 }))(TableRow);
@@ -33,20 +33,18 @@ export default function EmployerTable({ employeeHistory }) {
 
     return (
         <React.Fragment>
-
             {employeeHistory ?
                 <React.Fragment>
                     <Typography variant="h5" align="center" className={`${classes.EmployerTable}__title-text`}>Employment Verification</Typography>
                     <TableContainer component={Paper}>
                         <Table className={classes.EmployerTable} aria-label="customized table">
                             <TableHead>
-                                <tr>
+                                <StyledTableRow>
                                     <StyledTableCell align="left">Legal entity name</StyledTableCell>
                                     <StyledTableCell align="left">Start date</StyledTableCell>
                                     <StyledTableCell align="left">Status type</StyledTableCell>
                                     <StyledTableCell align="left">Verification date</StyledTableCell>
-                                    <StyledTableCell align="left">Worker classification type</StyledTableCell>
-                                </tr>
+                                </StyledTableRow>
                             </TableHead>
                             <TableBody>
                                 {employeeHistory.map((row) => (
@@ -55,7 +53,6 @@ export default function EmployerTable({ employeeHistory }) {
                                         <StyledTableCell align="left">{row.start_date}</StyledTableCell>
                                         <StyledTableCell align="left">{row.status_type}</StyledTableCell>
                                         <StyledTableCell align="left">{row.verification ? row.verification.verification_date : ""}</StyledTableCell>
-                                        <StyledTableCell align="left">{row.worker_classification_type}</StyledTableCell>
                                     </StyledTableRow>
                                 ))}
                             </TableBody>
