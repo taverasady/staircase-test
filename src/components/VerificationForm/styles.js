@@ -32,10 +32,10 @@ const useStyles = makeStyles((theme) => ({
     "&__button": {
       marginTop: theme.spacing(3),
       marginLeft: theme.spacing(1),
-      backgroundColor: '#000000',
+      backgroundColor: '#271a69',
       color: '#ffff',
       "&:hover": {
-        backgroundColor: '#131212',
+        backgroundColor: '#271a69',
         color: '#ffff',
       }
     },
